@@ -63,7 +63,7 @@ def get_model_domain():
     # Use fragment to make sure that all interfaces are conformal.
     main_model.occ.fragment(gmsh.model.occ.getEntities(3), [])
     main_model.occ.synchronize()
-'''
+    '''
     important_areas = []
     important_surfaces = []
     # Find the volumes based on COM

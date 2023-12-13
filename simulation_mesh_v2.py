@@ -3,7 +3,7 @@ from dolfinx.io import gmshio
 from dolfinx.io.utils import VTKFile
 import gmsh
 import numpy as np
-from dolfinx.fem import (Constant, Function, functionspace, Expression, dirichletbc, locate_dofs_topological, locate_dofs_geometrical)
+from dolfinx.fem import (Constant, Function, FunctionSpace, dirichletbc, locate_dofs_topological, locate_dofs_geometrical)
 from petsc4py.PETSc import ScalarType
 from dolfinx import mesh
 from ufl import TestFunction, TrialFunction, dot, dx, grad
@@ -13,8 +13,8 @@ R = 5 # radius of tube
 r = 0.25 # radius of electrode
 
 gmsh.initialize()
-gmsh.option.setNumber("Mesh.MeshSizeMin", 1)
-gmsh.option.setNumber("Mesh.MeshSizeMax", 10)
+gmsh.option.setNumber("Mesh.MeshSizeMin", 0.1)
+gmsh.option.setNumber("Mesh.MeshSizeMax", 0.5)
 
 # Create model
 main_model = gmsh.model()
@@ -22,13 +22,14 @@ main_model.add('main_mesh')
 main_model.setCurrent('main_mesh')
 
 # add 2D tube
-gmsh.model.occ.addDisk(0, 0, 0, R, R, tag=1) # positive terminal
+pos_term = gmsh.model.occ.addDisk(0, 0, 0, R, R, tag=1) # positive terminal
 
 
 # add -ve terminal
-gmsh.model.occ.addDisk(0, 0, 0, r, r, tag=2) # negative terminal
+neg_term = gmsh.model.occ.addDisk(0, 0, 0, r, r, tag=2) # negative terminal
 
-
+main_model.occ.fragment(gmsh.model.occ.getEntities(3), [])
+space = gmsh.model.occ.cut([(2, pos_term)], [(2, neg_term)])
 # syncrhonise
 gmsh.model.occ.synchronize()
 
@@ -47,9 +48,12 @@ gmsh_model_rank = 0
 mesh_comm = MPI.COMM_WORLD
 domain, cell_markers, facet_markers = gmshio.model_to_mesh(main_model, mesh_comm, gmsh_model_rank, gdim=2)
 gmsh.finalize()
+# tdim = domain.topology.dim
+# fdim = tdim - 1
+# domain.topology.create_connectivity(tdim, fdim)
 
 # The function space for the boundary conditions and the electric potential
-V = functionspace(domain, ("P", 1))
+V = FunctionSpace(domain, ("P", 1))
 
 v_1 = ScalarType(10)
 v_0 = ScalarType(0)
@@ -79,6 +83,6 @@ uh = Function(V)
 problem = LinearProblem(a, L, u=uh, bcs=bcs)
 problem.solve()
 
-with VTKFile(MPI.COMM_WORLD, "/content/drive/My Drive/My Folder/new", "w") as vtk:
+with VTKFile(MPI.COMM_WORLD, "new_model.bp", "w") as vtk:
     vtk.write_mesh(domain)
     vtk.write_function(uh)

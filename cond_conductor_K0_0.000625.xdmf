@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
+<Xdmf Version="3.0" xmlns:xi="https://www.w3.org/2001/XInclude">
+  <Domain>
+    <Grid Name="cylinder geometry" GridType="Uniform">
+      <Topology TopologyType="Triangle" NumberOfElements="296548" NodesPerElement="3">
+        <DataItem Dimensions="296548 3" NumberType="Int" Format="HDF">cond_conductor_K0_0.000625.h5:/Mesh/cylinder geometry/topology</DataItem>
+      </Topology>
+      <Geometry GeometryType="XY">
+        <DataItem Dimensions="149235 2" Format="HDF">cond_conductor_K0_0.000625.h5:/Mesh/cylinder geometry/geometry</DataItem>
+      </Geometry>
+    </Grid>
+    <Grid Name="Cell tags" GridType="Uniform">
+      <xi:include xpointer="xpointer(/Xdmf/Domain/Grid/Geometry)" />
+      <Topology TopologyType="Triangle" NumberOfElements="296548" NodesPerElement="3">
+        <DataItem Dimensions="296548 3" NumberType="Int" Format="HDF">cond_conductor_K0_0.000625.h5:/MeshTags/Cell tags/topology</DataItem>
+      </Topology>
+      <Attribute Name="Cell tags" AttributeType="Scalar" Center="Cell">
+        <DataItem Dimensions="296548 1" Format="HDF">cond_conductor_K0_0.000625.h5:/MeshTags/Cell tags/Values</DataItem>
+      </Attribute>
+    </Grid>
+    <Grid Name="Facet tags" GridType="Uniform">
+      <xi:include xpointer="xpointer(/Xdmf/Domain/Grid/Geometry)" />
+      <Topology TopologyType="PolyLine" NumberOfElements="1984" NodesPerElement="2">
+        <DataItem Dimensions="1984 2" NumberType="Int" Format="HDF">cond_conductor_K0_0.000625.h5:/MeshTags/Facet tags/topology</DataItem>
+      </Topology>
+      <Attribute Name="Facet tags" AttributeType="Scalar" Center="Cell">
+        <DataItem Dimensions="1984 1" Format="HDF">cond_conductor_K0_0.000625.h5:/MeshTags/Facet tags/Values</DataItem>
+      </Attribute>
+    </Grid>
+    <Grid Name="Electric potential" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="Electric potential" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0" />
+        <Attribute Name="real_Electric potential" AttributeType="Scalar" Center="Node">
+          <DataItem Dimensions="149235 1" Format="HDF">cond_conductor_K0_0.000625.h5:/Function/real_Electric potential/0</DataItem>
+        </Attribute>
+        <Attribute Name="imag_Electric potential" AttributeType="Scalar" Center="Node">
+          <DataItem Dimensions="149235 1" Format="HDF">cond_conductor_K0_0.000625.h5:/Function/imag_Electric potential/0</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+  </Domain>
+</Xdmf>
